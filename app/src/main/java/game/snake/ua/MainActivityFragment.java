@@ -1,10 +1,12 @@
 package game.snake.ua;
 
+import android.graphics.Paint;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -26,27 +28,49 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         textView = (TextView) view.findViewById(R.id.tv);
         button = (Button) view.findViewById(R.id.btn);
+        textView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         button.setOnClickListener(this);
-       // int curLine = textView.getLayout().getLineStart(0);
+
+
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
-                gameField[i][j] = " ";
+                gameField[i][j] = "i";
             }
         }
-        gameField[5][0] = "@";
-        gameField [5][1] = "@";
-        gameField [5][2] = "@";
+        gameField[5][0] = "w";
+        gameField [5][1] = "w";
+        gameField [5][2] = "=";
 
-        textView.setText(" ");
+        textView.setText("1111111111 1111111111 1111111111 1111 777");
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 strField += gameField[i][j];
             }
             strField += "/n";
         }
-        textView.setText(strField);
+      //  textView.setText(strField);
         return view;
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        textView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int width = textView.getMeasuredWidth();
+                int height = textView.getMeasuredHeight();
+                final Paint paint = textView.getPaint();
+                float c = paint.measureText(" ");
+                int count = (int) (width / c);
+            }
+        });
     }
 
     @Override
