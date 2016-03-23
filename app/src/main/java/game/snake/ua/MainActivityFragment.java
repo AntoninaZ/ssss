@@ -1,34 +1,31 @@
 package game.snake.ua;
 
-import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment implements View.OnClickListener, View.OnFocusChangeListener{
+public class MainActivityFragment extends Fragment implements View.OnClickListener, View.OnTouchListener {
     private TextView textViewGameField;
 
     private int widthGameField;
     private int heightGameField;
-    private int countSybmolOfLine;
+    private int countSymbolOfLine;
+    private int countLine;
+    private int directBody;
 
     private String[][] strArrGameField;
-    Button button;
 
     String strField = " ";
-    int k = 1;
+
     public MainActivityFragment() {
     }
 
@@ -37,10 +34,9 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         textViewGameField = (TextView) view.findViewById(R.id.tv);
-        button = (Button) view.findViewById(R.id.btn);
-        button.setOnClickListener(this);
-        textViewGameField.setOnFocusChangeListener(this);
-        textViewGameField.setText("jjj");
+
+        textViewGameField.setOnTouchListener(this);
+        textViewGameField.setText("Please, touch to screen for start game");
       /*  DisplayMetrics metrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
@@ -48,78 +44,121 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         heightGameField = metrics.heightPixels;
 
         float c = textViewGameField.getPaint().measureText(" ");
-        countSybmolOfLine = (int) (widthGameField / c);*/
+        countSymbolOfLine = (int) (widthGameField / c);*/
 
         return view;
 
     }
 
+
     @Override
     public void onStart() {
-        super.onStart();
-        textViewGameField.getViewTreeObserver()
-                .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        widthGameField = textViewGameField.getMeasuredWidth();
-                        heightGameField = textViewGameField.getMeasuredHeight();
-                        float c = textViewGameField.getPaint().measureText(" ");
-                        countSybmolOfLine = (int) (widthGameField / c);
-                    }
-                });
+         super.onStart();
     }
 
     private void createGameField() {
-        strArrGameField = new String[countSybmolOfLine][countSybmolOfLine];
-        for (int i = 0; i < countSybmolOfLine; i++) {
-
-            for (int j = 0; j < countSybmolOfLine; j++) {
-                strArrGameField[i][j] = " ";
-                if ( i == new Random().nextInt(countSybmolOfLine)
-                        && j == new Random().nextInt(countSybmolOfLine)) {
-                    strArrGameField[i][j] = "@";
-                    switch (new Random(3).nextInt()) {
-                        case 0:
-                            strArrGameField[i+1][j] = "@";
-                            strArrGameField[i+2][j] = "@";
-                            break;
-                        case 1:
-                            strArrGameField[i][j+1] = "@";
-                            strArrGameField[i][j+2] = "@";
-                            break;
-                        case 2:
-                            strArrGameField[i-1][j] = "@";
-                            strArrGameField[i-2][j] = "@";
-                            break;
-                        case 3:
-                            strArrGameField[i][j-1] = "@";
-                            strArrGameField[i][j-2] = "@";
-                            break;
-
-                    }
+        //***create array game field***
+        strArrGameField = new String[countLine][countSymbolOfLine];
+        //***draw game field***
+         for (int i = 0; i < countLine; i++) {
+            for (int j = 0; j < countSymbolOfLine; j++) {
+                strArrGameField[i][j] = "/";
+                if (( i == 0 ) || ( j == 0) || ( i == countLine - 1 ) || ( j == countSymbolOfLine - 1 )) {
+                    strArrGameField[i][j] = "#";
                 }
+
             }
         }
+        //***determine the position of the snake's head***
+        int posHeadX = countLine / 2;
+        int posHeadY = countSymbolOfLine / 2;
+
+        //***determine the position of the snake's body***
+        directBody = new Random().nextInt(4);
+        strArrGameField[posHeadX][posHeadY] = "@";
+        switch (directBody) {
+            case 0:
+                strArrGameField[posHeadX+1][posHeadY] = "@";
+                strArrGameField[posHeadX+2][posHeadY] = "@";
+                break;
+            case 1:
+                strArrGameField[posHeadX][posHeadY+1] = "@";
+                strArrGameField[posHeadX][posHeadY+2] = "@";
+                break;
+            case 2:
+                strArrGameField[posHeadX-1][posHeadY] = "@";
+                strArrGameField[posHeadX-2][posHeadY] = "@";
+                break;
+            case 3:
+                strArrGameField[posHeadX][posHeadY-1] = "@";
+                strArrGameField[posHeadX][posHeadY-2] = "@";
+                break;
+
+        }
+
     }
 
     private void visibleGameField() {
         strField = "";
-        for (int i = 0; i < countSybmolOfLine; i++) {
-            for (int j = 0; j < countSybmolOfLine; j++) {
+        for (int i = 0; i < countLine; i++) {
+            for (int j = 0; j < countSymbolOfLine; j++) {
                 strField += strArrGameField[i][j];
             }
         }
         textViewGameField.setText(strField);
     }
 
+    private void moveOfSnake(int x, int y) throws InterruptedException {
+        int k = 1;
+        switch (directBody) {
+            case 0:
+                while (!(x == countLine - 1 || y == countSymbolOfLine ||  x == 0 || y == 0)) {
+                    x ++;
+                    strArrGameField[x][y] = "@";
+                    strArrGameField[x + 1][y] = "@";
+                    strArrGameField[x + 2][y] = "@";
+                    visibleGameField();
+                    Thread.sleep(100000);
+                }
+                break;
+            case 1:
+
+                while (!(x == countLine - 1 || y == countSymbolOfLine ||  x == 0 || y == 0)) {
+                    x ++;
+                    strArrGameField[x][y] = "@";
+                    strArrGameField[x + 1][y] = "@";
+                    strArrGameField[x + 2][y] = "@";
+                    visibleGameField();
+                    Thread.sleep(100000);
+                }
+                break;
+            case 2:
+                while (!(x == countLine -1  || y == countSymbolOfLine ||  x == 0 || y == 0)) {
+                    x ++;
+                    strArrGameField[x][y] = "@";
+                    strArrGameField[x + 1][y] = "@";
+                    strArrGameField[x + 2][y] = "@";
+                    visibleGameField();
+                    Thread.sleep(1000);
+                }
+                break;
+            case 3:
+                while (!(x == countLine || y == countSymbolOfLine ||  x == 0 || y == 0)) {
+                    x ++;
+                    strArrGameField[x][y] = "@";
+                    strArrGameField[x + 1][y] = "@";
+                    strArrGameField[x + 2][y] = "@";
+                    visibleGameField();
+                    Thread.sleep(1000);
+                }
+                break;
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        if (textViewGameField.isFocused()) {
-            String y = "hhh";
-        }
-        //createGameField();
-       // visibleGameField();
+
     }
 
     @Override
@@ -128,7 +167,21 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     }
 
     @Override
-    public void onFocusChange(View view, boolean b) {
-        String y = "hhh";
+    public boolean onTouch(View v, MotionEvent event) {
+        widthGameField = textViewGameField.getMeasuredWidth();
+        heightGameField = textViewGameField.getMeasuredHeight();
+        countSymbolOfLine = (int) (widthGameField / textViewGameField.getPaint().measureText(" "));
+        countLine = heightGameField / textViewGameField.getLineHeight();
+
+        createGameField();
+        visibleGameField();
+        int posHeadX = countLine / 2;
+        int posHeadY = countSymbolOfLine / 2;
+        try {
+            moveOfSnake(posHeadX, posHeadY);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

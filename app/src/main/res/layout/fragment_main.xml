@@ -8,15 +8,11 @@
     <TextView
         android:id="@+id/tv"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:typeface="monospace"
-        android:singleLine="false"/>
+        android:singleLine="false"
+        android:textColor="@android:color/white"
+        android:background="@android:color/black"/>
 
-    <Button
-        android:id="@+id/btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="go"/>
 
 </RelativeLayout>
