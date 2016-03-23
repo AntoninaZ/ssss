@@ -2,4 +2,6 @@
     <string name="app_name">" SnakeGame"</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <string name="space">&#x20;</string>>
 </resources>

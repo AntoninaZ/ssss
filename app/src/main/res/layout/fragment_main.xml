@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         android:typeface="monospace"
         android:singleLine="false"
+        android:imeOptions="flagForceAscii"
         android:textColor="@android:color/white"
         android:background="@android:color/black"/>
 
