@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -18,8 +16,6 @@ import java.util.TimerTask;
 public class MainActivityFragment extends Fragment implements View.OnClickListener, View.OnTouchListener {
     private TextView textViewGameField;
 
-    private int widthGameField;
-    private int heightGameField;
     private int countSymbolOfLine;
     private int countLine;
     private int directBody;
@@ -27,7 +23,9 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
     private String[][] strArrGameField;
 
     String strField = " ";
-
+    Integer k;
+    boolean isRunning  = false;
+    boolean isFirstTouch = true;
     public MainActivityFragment() {
     }
 
@@ -39,21 +37,16 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
 
         textViewGameField.setOnTouchListener(this);
         textViewGameField.setText("Please, touch to screen for start game");
-      /*  DisplayMetrics metrics = new DisplayMetrics();
-        getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        widthGameField = metrics.widthPixels;
-        heightGameField = metrics.heightPixels;
-        float c = textViewGameField.getPaint().measureText(" ");
-        countSymbolOfLine = (int) (widthGameField / c);*/
 
         return view;
-
     }
 
+    private void  getSizeGameField() {
+        int widthGameField = textViewGameField.getMeasuredWidth();
+        int heightGameField = textViewGameField.getMeasuredHeight();
 
-    @Override
-    public void onStart() {
-        super.onStart();
+        countSymbolOfLine = (int) (widthGameField / textViewGameField.getPaint().measureText(" "));
+        countLine = heightGameField / textViewGameField.getLineHeight();
     }
 
     private void createGameField() {
@@ -90,9 +83,7 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
                 strArrGameField[posHeadX][posHeadY-1] = "@";
                 strArrGameField[posHeadX][posHeadY-2] = "@";
                 break;
-
         }
-
     }
 
     private void visibleGameField() {
@@ -105,77 +96,52 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
         textViewGameField.setText(strField);
     }
 
-    private void moveOfSnake(final int x, final int y) {
+    //***cX - current x
+    //***cY - current y
+    //***dX - destination x
+    //***dY - destination y
+    private boolean moveSnake(int cX, int cY, int dX, int dY ) {
+        boolean runResult = false;
+        switch (directBody) {
 
-            Timer t = new Timer(false);
-            t.schedule(new TimerTask() {
-
-                @Override
-                public void run() {
-                    int k = 0;
-                    while (!((x + k) == (countLine - 3))) {
-                    strArrGameField[x + k - 2][y] = ".";
-                    strArrGameField[x + k][y] = "@";
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            visibleGameField();
-                        }
-                    });k++;
-                }}
-            }, 6000);
-
-
-
-       /* switch (directBody) {
             case 0:
-                while (!(x == countLine - 1 || y == countSymbolOfLine ||  x == 0 || y == 0)) {
-                    x ++;
-                    strArrGameField[x][y] = "@";
-                    strArrGameField[x + 1][y] = "@";
-                    strArrGameField[x + 2][y] = "@";
+                if ((cX + k) < (countLine - 2)) {
+                    strArrGameField[cX + k - 1][cY] = ".";
+                    strArrGameField[cX + 2 + k][cY] = "@";
                     visibleGameField();
-                    Thread.sleep(100000);
-                }
+                    k++;
+                    runResult = true;
+                } else runResult = false;
                 break;
             case 1:
-
-                while (!(x == countLine - 1 || y == countSymbolOfLine ||  x == 0 || y == 0)) {
-                    x ++;
-                    strArrGameField[x][y] = "@";
-                    strArrGameField[x + 1][y] = "@";
-                    strArrGameField[x + 2][y] = "@";
+                if ((cY + k) < (countSymbolOfLine - 2)) {
+                    strArrGameField[cX][cY + k - 1] = ".";
+                    strArrGameField[cX][cY + 2 + k] = "@";
                     visibleGameField();
-                    Thread.sleep(100000);
-                }
+                    k++;
+                    runResult = true;
+                } else runResult = false;
                 break;
             case 2:
-                while (!(x == countLine -1  || y == countSymbolOfLine ||  x == 0 || y == 0)) {
-                    x ++;
-                    strArrGameField[x][y] = "@";
-                    strArrGameField[x + 1][y] = "@";
-                    strArrGameField[x + 2][y] = "@";
+                if ((cX - k) > 3) {
+                    strArrGameField[cX - k + 1][cY] = ".";
+                    strArrGameField[cX - 2 - k][cY] = "@";
                     visibleGameField();
-                    Thread.sleep(1000);
-                }
+                    k++;
+                    runResult = true;
+                } else runResult = false;
                 break;
             case 3:
-                while (!(x == countLine || y == countSymbolOfLine ||  x == 0 || y == 0)) {
-                    x ++;
-                    strArrGameField[x][y] = "@";
-                    strArrGameField[x + 1][y] = "@";
-                    strArrGameField[x + 2][y] = "@";
+                if ((cY - k) > 3) {
+                    strArrGameField[cX][cY - k + 1] = ".";
+                    strArrGameField[cX][cY - 2 - k] = "@";
                     visibleGameField();
-                    Thread.sleep(1000);
-                }
+                    k++;
+                    runResult = true;
+                } else runResult = false;
                 break;
-        }*/
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
+        }
+        return runResult;
     }
 
     @Override
@@ -185,18 +151,41 @@ public class MainActivityFragment extends Fragment implements View.OnClickListen
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        widthGameField = textViewGameField.getMeasuredWidth();
-        heightGameField = textViewGameField.getMeasuredHeight();
-        countSymbolOfLine = (int) (widthGameField / textViewGameField.getPaint().measureText(" "));
-        countLine = heightGameField / textViewGameField.getLineHeight();
+        if (isFirstTouch) {
+            getSizeGameField();
+            createGameField();
+            visibleGameField();
+            isFirstTouch = false;
+
+            final int x = countLine / 2;
+            final int y = countSymbolOfLine / 2;
+
+            (new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    k = 0;
+                    isRunning = true;
+                    while (!Thread.interrupted())
+                        try {
+                            Thread.sleep(500);
+                            getActivity().runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    if (isRunning) {
+                                        isRunning = moveSnake(x, y, x, x);
+                                    } else Thread.interrupted();
+                                }
+                            });
+                        } catch (InterruptedException e) {
+
+                        }
+                }
+            })).start();
+        } else {
 
 
-        createGameField();
-        visibleGameField();
-        int posHeadX = countLine / 2;
-        int posHeadY = countSymbolOfLine / 2;
-        moveOfSnake(posHeadX, posHeadY);
-
+        }
         return false;
     }
 }
