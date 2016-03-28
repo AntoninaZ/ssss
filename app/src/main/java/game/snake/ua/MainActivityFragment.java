@@ -23,7 +23,7 @@ public class MainActivityFragment extends Fragment implements View.OnTouchListen
     private int directBody;
 
     private String[][] strArrGameField;
-    private ArrayList<Position> snakeMap;
+    private ArrayList <Position> snakeMap;
 
     Integer k;
 
@@ -75,37 +75,41 @@ public class MainActivityFragment extends Fragment implements View.OnTouchListen
         posHeadX = countLine / 2;
         posHeadY = countSymbolOfLine / 2;
 
-        Position position = new Position();
+       /*Position position = new Position();
         position.setPos(posHeadX, posHeadY);
-        snakeMap.add(position);
+        snakeMap.add(position);*/
 
         //***determine the position of the snake's body***
         directBody = new Random().nextInt(4);
-;
+
         switch (directBody) {
             case 0:
-                position.setPos(posHeadX + 1, posHeadY);
-                snakeMap.add(position);
-                position.setPos(posHeadX + 2, posHeadY);
-                snakeMap.add(position);
+                for (int i = 0; i < 3; i++) {
+                    Position position = new Position();
+                    position.setPos(posHeadX + i, posHeadY);
+                    snakeMap.add(position);
+                }
                 break;
             case 1:
-                position.setPos(posHeadX, posHeadY + 1);
-                snakeMap.add(position);
-                position.setPos(posHeadX, posHeadY + 2);
-                snakeMap.add(position);
+                for (int i = 0; i < 3; i++) {
+                    Position position = new Position();
+                    position.setPos(posHeadX, posHeadY + i);
+                    snakeMap.add(position);
+                }
                 break;
             case 2:
-                position.setPos(posHeadX - 1, posHeadY);
-                snakeMap.add(position);
-                position.setPos(posHeadX - 2, posHeadY);
-                snakeMap.add(position);
+                for (int i = 0; i < 3; i++) {
+                    Position position = new Position();
+                    position.setPos(posHeadX - i, posHeadY);
+                    snakeMap.add(position);
+                }
                 break;
             case 3:
-                position.setPos(posHeadX, posHeadY - 1);
-                snakeMap.add(position);
-                position.setPos(posHeadX, posHeadY - 2);
-                snakeMap.add(position);
+                for (int i = 0; i < 3; i++) {
+                    Position position = new Position();
+                    position.setPos(posHeadX, posHeadY - i);
+                    snakeMap.add(position);
+                }
                 break;
         }
         strArrGameField[snakeMap.get(0).getPosX()][snakeMap.get(0).getPosY()] = "@";
@@ -185,12 +189,17 @@ public class MainActivityFragment extends Fragment implements View.OnTouchListen
     //yT - y from touch
     private void defineDirection(int xT, int yT) {
         switch (directBody) {
-            case 0:case 2:
+            case 0:
+                if (yT < snakeMap.get(snakeMap.size() - 1).getPosY()) {
+                    directBody = 1;
+                } else directBody = 3;
+
+                break;
+            case 2:
                 if (yT < snakeMap.get(snakeMap.size() - 1).getPosY()) {
                     directBody = 1;
                 } else directBody = 3;
                 break;
-
             case 1:case 3:
                 if (xT < snakeMap.get(snakeMap.size() - 1).getPosX()) {
                     directBody = 0;
