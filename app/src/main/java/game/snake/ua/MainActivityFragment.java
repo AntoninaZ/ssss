@@ -3,6 +3,7 @@ package game.snake.ua;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -80,34 +81,30 @@ public class MainActivityFragment extends Fragment implements View.OnTouchListen
         snakeMap.add(position);*/
 
         //***determine the position of the snake's body***
-        directBody = new Random().nextInt(4);
+        directBody = 2;
 
         switch (directBody) {
             case 0:
                 for (int i = 0; i < 3; i++) {
-                    Position position = new Position();
-                    position.setPos(posHeadX + i, posHeadY);
+                    Position position = new Position(posHeadX + i, posHeadY);
                     snakeMap.add(position);
                 }
                 break;
             case 1:
                 for (int i = 0; i < 3; i++) {
-                    Position position = new Position();
-                    position.setPos(posHeadX, posHeadY + i);
+                    Position position = new Position(posHeadX, posHeadY + i);
                     snakeMap.add(position);
                 }
                 break;
             case 2:
                 for (int i = 0; i < 3; i++) {
-                    Position position = new Position();
-                    position.setPos(posHeadX - i, posHeadY);
+                    Position position = new Position(posHeadX - i, posHeadY);
                     snakeMap.add(position);
                 }
                 break;
             case 3:
                 for (int i = 0; i < 3; i++) {
-                    Position position = new Position();
-                    position.setPos(posHeadX, posHeadY - i);
+                    Position position = new Position(posHeadX, posHeadY - i);
                     snakeMap.add(position);
                 }
                 break;
@@ -127,62 +124,63 @@ public class MainActivityFragment extends Fragment implements View.OnTouchListen
         textViewGameField.setText(Html.fromHtml(strField));
     }
 
+    private void updateGameField() {
+        String strField = textViewGameField.getText().toString();
+
+    }
+
     //***cX - current x
     //***cY - current y
 
     private boolean moveSnake() {
-        Position position = new Position();
         boolean runResult = false;
         switch (directBody) {
             case 0://***Direction down***//
                 if (snakeMap.get(snakeMap.size() - 1).getPosX() < countLine - 1) {
-                    position.setPosX(snakeMap.get(snakeMap.size() - 1).getPosX() + 1);
-                    position.setPosY(snakeMap.get(snakeMap.size() - 1).getPosY());
-                    // strArrGameField[cX + 2 + k][cY] = "@";
-                   // strArrGameField[cX + k - 1][cY] = ".";
-                    snakeMap.add(position);
+                    Position position = new Position((snakeMap.get(snakeMap.size() - 1).getPosX() + 1),
+                                                    snakeMap.get(snakeMap.size() - 1).getPosY());
+
                     snakeMap.remove(0);
+                    snakeMap.add(position);
                     runResult = true;
                 } else runResult = false;
                 break;
-            case 1://***Direction right***//
-                if (snakeMap.get(snakeMap.size() - 1).getPosY() < countSymbolOfLine - 1) {
-                    position.setPosX(snakeMap.get(snakeMap.size() - 1).getPosX());
-                    position.setPosY(snakeMap.get(snakeMap.size() - 1).getPosY() + 1);
-                    //strArrGameField[cX][cY + 2 + k]= "@";
-                    //strArrGameField[cX][cY + k - 1] = ".";
-                    snakeMap.add(position);
-                    snakeMap.remove(0);
+            case 1://***Direction left***//
+                if (snakeMap.get(0).getPosY() >  1) {
+                    Position position = new Position(snakeMap.get(0).getPosX(),
+                            snakeMap.get(0).getPosY() - 1);
+
+                    snakeMap.remove(snakeMap.size() - 1);
+                    snakeMap.add(0, position);
+
                     runResult = true;
                 } else runResult = false;
                 break;
             case 2://***Direction top***//
-                if (snakeMap.get(0).getPosX() > 1) {
-                    position.setPosX(snakeMap.get(0).getPosX() - 1);
-                    position.setPosX(snakeMap.get(0).getPosY());
-                    //strArrGameField[cX - 2 - k][cY] = "@";
-                    //strArrGameField[cX - k + 1][cY] = ".";
+                if (snakeMap.get(snakeMap.size() - 1).getPosX() > 1) {
+                    Position position = new Position(snakeMap.get(snakeMap.size() - 1).getPosX() - 1,
+                                                    snakeMap.get(snakeMap.size() - 1).getPosY());
+
+                    snakeMap.remove(0);
                     snakeMap.add(position);
-                    snakeMap.remove(snakeMap.size() - 1);
+
                     runResult = true;
                 } else runResult = false;
                 break;
-            //***Direction left***//
-            case 3:
+            case 3://***Direction right***//
                 if (snakeMap.get(0).getPosY() > 1) {
-                    position.setPosX(snakeMap.get(0).getPosX());
-                    position.setPosX(snakeMap.get(0).getPosY() - 1);
-                    //strArrGameField[cX][cY - 2 - k] = "@";
-                    // strArrGameField[cX][cY - k + 1] = ".";
+                    Position position = new Position(snakeMap.get(snakeMap.size() - 1).getPosX(),
+                            snakeMap.get(snakeMap.size() - 1).getPosY() - 1);
+
+                    snakeMap.remove(0);
                     snakeMap.add(position);
-                    snakeMap.remove(snakeMap.size() - 1);
                     runResult = true;
                 } else runResult = false;
                 break;
         }
-        strArrGameField[snakeMap.get(0).getPosX()][snakeMap.get(0).getPosY()] = "@";
+       /* strArrGameField[snakeMap.get(0).getPosX()][snakeMap.get(0).getPosY()] = "@";
         strArrGameField[snakeMap.get(1).getPosX()][snakeMap.get(1).getPosY()] = "@";
-        strArrGameField[snakeMap.get(2).getPosX()][snakeMap.get(2).getPosY()] = "@";
+        strArrGameField[snakeMap.get(2).getPosX()][snakeMap.get(2).getPosY()] = "@";*/
         return runResult;
     }
     //xT - x from touch
@@ -190,22 +188,31 @@ public class MainActivityFragment extends Fragment implements View.OnTouchListen
     private void defineDirection(int xT, int yT) {
         switch (directBody) {
             case 0:
+                Log.w("dir", "down");
                 if (yT < snakeMap.get(snakeMap.size() - 1).getPosY()) {
-                    directBody = 1;
-                } else directBody = 3;
-
+                    directBody = 3;
+                } else directBody = 1;
                 break;
             case 2:
+                Log.w("dir", "top");
                 if (yT < snakeMap.get(snakeMap.size() - 1).getPosY()) {
-                    directBody = 1;
-                } else directBody = 3;
+                    directBody = 3;
+                } else directBody = 1;
                 break;
-            case 1:case 3:
+            case 1:
+                Log.w("dir", "right");
                 if (xT < snakeMap.get(snakeMap.size() - 1).getPosX()) {
-                    directBody = 0;
-                } else directBody = 2;
+                    directBody = 2;
+                } else directBody = 0;
+                break;
+            case 3:
+                Log.w("dir", "left");
+                if (xT < snakeMap.get(snakeMap.size() - 1).getPosX()) {
+                    directBody = 2;
+                } else directBody = 0;
                 break;
         }
+
     }
 
     @Override
@@ -229,7 +236,7 @@ public class MainActivityFragment extends Fragment implements View.OnTouchListen
                     isRunning = true;
                     while (!Thread.interrupted())
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(100);
                             getActivity().runOnUiThread(new Runnable() {
 
                                 @Override
